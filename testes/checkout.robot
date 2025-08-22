@@ -30,6 +30,14 @@ Test Teardown     Teardown do Teste de Checkout
     Quando insiro minhas credenciais de login
     Então o login deve ser realizado com sucesso
 
+[TC-03] Adicionar Produto ao Carrinho com Sucesso
+    [Tags]    web    compra
+    [Documentation]    Valida o fluxo de busca e adição de um produto ao carrinho.
+
+    Dado que estou logado no sistema
+    Quando eu busco por um produto e o adiciono ao carrinho
+    Então o produto deve ser exibido corretamente no carrinho
+
 *** Keywords ***
 Setup do Teste de Checkout
     [Documentation]    Prepara o ambiente para um teste: cria usuário e conecta ao DB.
@@ -55,3 +63,16 @@ Quando insiro minhas credenciais de login
 Então o login deve ser realizado com sucesso
     ${username}=    Set Variable    ${USER_CREDENTIALS}[username]
     Verificar Login Bem Sucedido    ${username}
+
+Dado que estou logado no sistema
+    # --- CORREÇÃO APLICADA AQUI ---
+    Abrir Navegador e Acessar a Página Principal
+    Fazer Login Pela Interface    ${USER_CREDENTIALS.username}    ${USER_CREDENTIALS.password}
+    Verificar Login Bem Sucedido    ${USER_CREDENTIALS.username}
+
+Quando eu busco por um produto e o adiciono ao carrinho
+    Buscar e Selecionar Produto na Sugestão    HP ROAR PLUS WIRELESS SPEAKER
+    Adicionar Produto ao Carrinho
+
+Então o produto deve ser exibido corretamente no carrinho
+    Verificar Produto no Carrinho    HP ROAR PLUS WIRELESS SPEAKER
