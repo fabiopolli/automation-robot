@@ -205,3 +205,21 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Ambiente Virtual
+venv/
+.venv/
+
+# Arquivos de Cache e Compilados
+__pycache__/
+*.pyc
+
+# Resultados de Testes
+results/
+
+# Arquivos de Configuração Local
+.env
+
+# Arquivos de IDE
+.idea/
+.vscode/
