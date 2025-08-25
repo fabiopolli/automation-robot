@@ -9,6 +9,7 @@ Library           OperatingSystem
 ${USER_ICON}            xpath://a[@id='hrefUserIcon']
 ${LOGIN_USERNAME_INPUT}   name:username
 ${LOGIN_PASSWORD_INPUT}   name:password
+${LOGIN_ERROR_MESSAGE}  id:signInResultMessage
 ${SIGN_IN_BUTTON}       id:sign_in_btn
 ${POPUP_CLOSE_BUTTON}   css:.PopUp .closeBtn
 
@@ -150,10 +151,15 @@ Input Text If Element Is Visible
     Input Text    ${locator}    ${text}
     Wait Loader
 
-# --- Keyword Especial para o clique problemático ---
 Click User Icon via Javascript
     [Documentation]    Usa JavaScript para clicar no ícone de usuário, evitando interceptação.
     Wait Until Element Is Visible    ${USER_ICON}    timeout=15s
     ${element}=    Get Webelement    ${USER_ICON}
     Execute Javascript    arguments[0].click();    ARGUMENTS    ${element}
     Wait Loader
+
+Verificar Mensagem de Login Invalido
+    [Documentation]    Verifica se a mensagem de erro para login inválido está visível.
+    Wait Until Element Is Visible    ${LOGIN_ERROR_MESSAGE}    timeout=10s
+    Element Should Contain           ${LOGIN_ERROR_MESSAGE}    Incorrect user name or password.
+    Log To Console                   --- Mensagem de erro de login validada com sucesso ---

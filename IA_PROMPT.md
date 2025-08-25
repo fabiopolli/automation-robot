@@ -41,24 +41,21 @@ O objetivo deste projeto é desenvolver uma suíte de testes automatizados para 
 * **Senha:** `""` (Vazio, padrão do XAMPP)
 * **Database:** `automation_results` (Nome que estamos utilizando)
 
-## 6. Status Atual do Projeto (22/08/2025)
-A base do projeto está implementada e estável.
+## 6. Status Atual do Projeto (25/08/2025)
+A base do projeto e o fluxo de compra principal ("happy path") estão implementados e estáveis.
 * **Keywords Implementadas:**
     * `db_keywords.robot`: Conexão e registro de resultados no MySQL.
     * `api_keywords.robot`: Criação de novo usuário via API.
-    * `web_keywords.robot`: Login, tratamento de pop-up, busca de produto e adição ao carrinho.
+    * `web_keywords.robot`: Keywords para o fluxo completo, incluindo login, busca, adição ao carrinho e **finalização de pagamento com SafePay**.
 * **Testes Automatizados (Passando):**
     * `[TC-00]`: Validação da conexão com o banco de dados.
     * `[TC-01]`: Validação da criação de usuário via API.
     * `[TC-02]`: Teste E2E de login de usuário.
     * `[TC-03]`: Teste E2E de adição de produto ao carrinho.
+    * `[TC-04]`: Teste E2E de **compra completa com sucesso**.
 
 ## 7. Próximos Passos
-O próximo objetivo é continuar o fluxo de checkout a partir do carrinho de compras.
-1.  **Implementar Keywords de Checkout:** Criar keywords em `web_keywords.robot` para:
-    * Clicar no botão de checkout no carrinho.
-    * Preencher os dados de pagamento (SafePay).
-    * Validar a mensagem de "Thank you for your order".
-2.  **Criar o Teste de Compra Completa:** Adicionar um novo caso de teste `[TC-04]` para o fluxo completo.
-3.  **Adicionar Testes Negativos:** Implementar cenários de falha (ex: login com senha errada).
-4.  **CI/CD:** Configurar a execução dos testes em uma esteira de automação.
+Com o fluxo principal concluído, o próximo objetivo é aumentar a cobertura de testes e preparar o projeto para automação contínua.
+1.  **Adicionar Testes Negativos:** Implementar cenários de falha para aumentar a robustez da suíte (ex: login com senha errada, tentativa de pagamento com dados inválidos).
+2.  **Refatorar para Page Objects:** Se o projeto crescer, podemos dividir o `web_keywords.robot` em arquivos de Page Objects mais específicos (ex: `home_page.robot`, `payment_page.robot`) para melhorar a manutenção.
+3.  **CI/CD:** Configurar a execução dos testes em uma esteira de automação (ex: Jenkins, GitHub Actions).
