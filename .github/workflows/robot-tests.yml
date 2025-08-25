@@ -1,19 +1,16 @@
 name: Run Robot Framework Tests
 
-# Gatilhos: Quando a automação deve rodar
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # Permite rodar manualmente pela interface do GitHub
   workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
     
-    # Define um serviço de banco de dados MySQL que rodará junto com o teste
     services:
       mysql:
         image: mysql:8.0
@@ -29,35 +26,32 @@ jobs:
           --health-retries=3
 
     steps:
-    # 1. Clona o seu repositório para o ambiente virtual
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2. Configura o Python
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    # 3. Instala as dependências do projeto
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # 4. Executa os testes do Robot Framework
     - name: Run Robot Framework tests
-      # Define as variáveis de ambiente para conectar ao serviço MySQL
+      # --- CORREÇÃO APLICADA AQUI ---
+      # Adicionando SITE_URL e BROWSER às variáveis de ambiente
       env:
+        SITE_URL: https://advantageonlineshopping.com/#/
+        BROWSER: headlesschrome
         DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         DB_NAME: automation_results
         DB_USER: root
         DB_PASS: root
-      # Executa todos os testes em modo "headless" (sem interface gráfica)
-      run: robot --outputdir results/ --variable BROWSER:headlesschrome testes/
+      run: robot --outputdir results/ testes/
 
-    # 5. Salva os relatórios como artefatos (para download)
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
