@@ -99,3 +99,4 @@ Use os seguintes comandos na raiz do projeto para executar os testes. Os resulta
 
 Este projeto está configurado para executar todos os testes automaticamente a cada `push` ou `pull request` para a branch `main`. Os resultados podem ser visualizados na aba "Actions" do repositório no GitHub.
 
+<img width="806" height="385" alt="image (6)" src="https://github.com/user-attachments/assets/6f7d4833-ce35-4a52-bfe0-4f02c63ed930" />
