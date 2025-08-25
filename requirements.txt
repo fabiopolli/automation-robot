@@ -4,3 +4,4 @@ robotframework-requests
 robotframework-databaselibrary
 PyMySQL
 python-dotenv
+cryptography

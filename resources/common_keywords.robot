@@ -19,7 +19,10 @@ Abrir Navegador e Acessar a Página Principal
     ${site_url}=      Get Environment Variable    SITE_URL
     ${browser}=       Get Environment Variable    BROWSER
     Open Browser      url=${site_url}    browser=${browser}
-    Maximize Browser Window
+    
+    # Define um tamanho de janela fixo para garantir consistência entre ambientes
+    Set Window Size    1920    1080
+
     Set Selenium Implicit Wait    10s
     Log To Console    \n--- Navegador aberto no site: ${site_url} ---
     Lidar com Pop-up Inicial
