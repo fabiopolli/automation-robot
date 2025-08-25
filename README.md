@@ -98,3 +98,5 @@ Use os seguintes comandos na raiz do projeto para executar os testes. Os resulta
 ## Execução via CI/CD (GitHub Actions)
 
 Este projeto está configurado para executar todos os testes automaticamente a cada `push` ou `pull request` para a branch `main`. Os resultados podem ser visualizados na aba "Actions" do repositório no GitHub.
+
+[Testes Report.pdf](https://github.com/user-attachments/files/21962587/Testes.Report.pdf)
