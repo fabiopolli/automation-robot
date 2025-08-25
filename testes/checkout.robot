@@ -48,6 +48,14 @@ Test Teardown     Teardown do Teste de Checkout
     Quando insiro um usuário válido com uma senha incorreta
     Então uma mensagem de erro de login deve ser exibida
 
+[TC-06] Tentar Buscar um Produto Inexistente
+    [Tags]    web    negativo    busca
+    [Documentation]    Valida o comportamento do sistema ao buscar um produto que não existe.
+
+    Dado que estou logado no sistema
+    Quando eu busco por um produto que não existe
+    Então o sistema deve informar que não há resultados
+
 
 *** Keywords ***
 Setup do Teste de Checkout
@@ -98,3 +106,11 @@ Então uma mensagem de erro de login deve ser exibida
 
 Então o produto deve ser exibido corretamente no carrinho
     Log    A verificação já foi feita no passo 'Quando'.
+
+Quando eu busco por um produto que não existe
+    ${termo_inexistente}=    Set Variable    ProdutoInexistente12345
+    Set Test Variable        ${TERMO_BUSCADO}    ${termo_inexistente}
+    Buscar por um Termo      ${termo_inexistente}
+
+Então o sistema deve informar que não há resultados
+    Verificar que Nenhum Produto Foi Encontrado    ${TERMO_BUSCADO}

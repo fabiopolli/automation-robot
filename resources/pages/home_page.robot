@@ -13,6 +13,7 @@ ${LOGIN_ERROR_MESSAGE}  id:signInResultMessage
 # Variáveis de Busca
 ${SEARCH_ICON}          id:menuSearch
 ${SEARCH_INPUT}         id:autoComplete
+${NO_RESULTS_MESSAGE}   xpath=//p[contains(., 'No results for')]
 
 *** Keywords ***
 Fazer Login Pela Interface
@@ -44,3 +45,19 @@ Buscar e Selecionar Produto na Sugestão
     ${suggestion_locator}=    Set Variable    xpath=//div[@id="output"]//a[@class="product ng-scope"]//*[contains(text(),'${nome_produto}')]
     Click If Element Is Visible    ${suggestion_locator}
     Wait Until Element Contains    xpath=//*[@id="Description"]/h1    ${nome_produto}    timeout=10s
+
+Buscar por um Termo
+    [Documentation]    Abre a busca, digita um termo e pressiona Enter.
+    [Arguments]    ${termo_buscado}
+    Click If Element Is Visible    ${SEARCH_ICON}
+    Input Text If Element Is Visible    ${SEARCH_INPUT}    ${termo_buscado}
+    Press Keys    ${SEARCH_INPUT}    ENTER
+
+Verificar que Nenhum Produto Foi Encontrado
+    [Documentation]    Verifica se a mensagem de "nenhum resultado" está visível na página de busca.
+    [Arguments]    ${termo_buscado}
+    # O seletor abaixo procura por um elemento <label> que contém o texto "No results for..."
+    ${no_results_locator}=    Set Variable    xpath=//label[contains(., 'No results for')]
+    Wait Until Element Is Visible    ${no_results_locator}    timeout=10s
+    Element Should Contain           ${no_results_locator}    ${termo_buscado}
+    Log To Console                   --- Mensagem 'No results for' validada com sucesso ---
