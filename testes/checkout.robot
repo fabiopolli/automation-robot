@@ -38,6 +38,16 @@ Test Teardown     Teardown do Teste de Checkout
     Quando eu busco por um produto e o adiciono ao carrinho
     Então o produto deve ser exibido corretamente no carrinho
 
+[TC-04] Realizar Compra Completa com Sucesso
+    [Tags]    web    pagamento    critico
+    [Documentation]    Valida o fluxo completo de compra, do login ao pagamento.
+    
+    Dado que estou logado no sistema
+    Quando eu busco por um produto e o adiciono ao carrinho
+    E finalizo a compra com SafePay
+    Então devo ver a confirmação de compra
+
+
 *** Keywords ***
 Setup do Teste de Checkout
     [Documentation]    Prepara o ambiente para um teste: cria usuário e conecta ao DB.
@@ -52,20 +62,18 @@ Teardown do Teste de Checkout
     Run Keyword And Ignore Error    Close Browser
     Desconectar do Banco de Dados
 
+# Keywords para TC-02
 Dado que acesso a página principal do site
     Abrir Navegador e Acessar a Página Principal
 
 Quando insiro minhas credenciais de login
-    ${username}=    Set Variable    ${USER_CREDENTIALS}[username]
-    ${password}=    Set Variable    ${USER_CREDENTIALS}[password]
-    Fazer Login Pela Interface    ${username}    ${password}
+    Fazer Login Pela Interface    ${USER_CREDENTIALS}[username]    ${USER_CREDENTIALS}[password]
 
 Então o login deve ser realizado com sucesso
-    ${username}=    Set Variable    ${USER_CREDENTIALS}[username]
-    Verificar Login Bem Sucedido    ${username}
+    Verificar Login Bem Sucedido    ${USER_CREDENTIALS}[username]
 
+# Keywords para TC-03 e TC-04
 Dado que estou logado no sistema
-    # --- CORREÇÃO APLICADA AQUI ---
     Abrir Navegador e Acessar a Página Principal
     Fazer Login Pela Interface    ${USER_CREDENTIALS.username}    ${USER_CREDENTIALS.password}
     Verificar Login Bem Sucedido    ${USER_CREDENTIALS.username}
@@ -73,6 +81,15 @@ Dado que estou logado no sistema
 Quando eu busco por um produto e o adiciono ao carrinho
     Buscar e Selecionar Produto na Sugestão    HP ROAR PLUS WIRELESS SPEAKER
     Adicionar Produto ao Carrinho
+    Verificar Produto no Carrinho                HP ROAR PLUS WIRELESS SPEAKER
 
-Então o produto deve ser exibido corretamente no carrinho
-    Verificar Produto no Carrinho    HP ROAR PLUS WIRELESS SPEAKER
+# Keywords para TC-04 (COM A LÓGICA CORRIGIDA)
+E finalizo a compra com SafePay
+    Tentar Prosseguir Para Pagamento
+    Preencher e Validar Credenciais SafePay    ${USER_CREDENTIALS.username}    ${USER_CREDENTIALS.password}
+    Click If Element Is Visible               ${PAY_NOW_BUTTON}
+
+Então devo ver a confirmação de compra
+    Validar Compra Realizada com Sucesso
+
+

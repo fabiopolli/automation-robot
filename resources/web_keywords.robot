@@ -12,16 +12,25 @@ ${LOGIN_PASSWORD_INPUT}   name:password
 ${SIGN_IN_BUTTON}       id:sign_in_btn
 ${POPUP_CLOSE_BUTTON}   css:.PopUp .closeBtn
 
-# --- Variáveis de Busca ---
+# --- Variáveis de Busca e Produto ---
 ${SEARCH_ICON}          id:menuSearch
 ${SEARCH_INPUT}         id:autoComplete
-
-# --- Variáveis de Produto e Carrinho ---
 ${ADD_TO_CART_BUTTON}   name:save_to_cart
+
+# --- Variáveis do Carrinho e Checkout ---
 ${SHOPPING_CART_LINK}   id:shoppingCartLink
+${PRODUCT_NAME_IN_CART}   xpath=//td[@class='smollCell'][2]/a/h3
+${CHECKOUT_BUTTON}      id:checkOutPopUp
+${NEXT_BUTTON}          id:next_btn
+${SAFE_PAY_OPTION}      xpath=//div[contains(@class, 'imgRadioButton')][./input[@name='safepay']]
+${SAFE_PAY_USERNAME}    name:safepay_username
+${SAFE_PAY_PASSWORD}    name:safepay_password
+${PAY_NOW_BUTTON}       id:pay_now_btn_SAFEPAY
+${SUCCESS_MESSAGE}      xpath=//span[text()='Thank you for your order!']
+${LOADER_SPINNER}       css:div.loader
 
 *** Keywords ***
-# --- Keywords de Setup ---
+# --- Keywords de Setup e Login ---
 Carregar Variaveis de Ambiente Web
     [Documentation]    Carrega as variáveis do arquivo .env para a sessão atual.
     Evaluate          __import__('dotenv').load_dotenv()    dotenv
@@ -41,15 +50,13 @@ Lidar com Pop-up Inicial
     [Documentation]    Verifica se o pop-up promocional está visível e o fecha.
     ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${POPUP_CLOSE_BUTTON}    timeout=5s
     IF    ${is_visible}
-        Click Element    ${POPUP_CLOSE_BUTTON}
-        Log To Console    --- Pop-up promocional fechado ---
+        Click If Element Is Visible    ${POPUP_CLOSE_BUTTON}
     END
 
-# --- Keywords de Login (Já funcionais) ---
 Fazer Login Pela Interface
     [Documentation]    Executa os passos para fazer login no site.
     [Arguments]    ${username}    ${password}
-    Click If Element Is Visible    ${USER_ICON}
+    Click User Icon via Javascript
     Input Text If Element Is Visible    ${LOGIN_USERNAME_INPUT}    ${username}
     Input Text If Element Is Visible    ${LOGIN_PASSWORD_INPUT}    ${password}
     Click If Element Is Visible    ${SIGN_IN_BUTTON}
@@ -66,7 +73,7 @@ Buscar e Selecionar Produto na Sugestão
     [Arguments]    ${nome_produto}
     Click If Element Is Visible    ${SEARCH_ICON}
     Input Text If Element Is Visible    ${SEARCH_INPUT}    ${nome_produto}
-    Sleep    10s
+    Sleep    3s
     ${suggestion_locator}=    Set Variable    xpath=//div[@id="output"]//a[@class="product ng-scope"]//*[contains(text(),'${nome_produto}')]
     Click If Element Is Visible    ${suggestion_locator}
     Wait Until Element Contains    xpath=//*[@id="Description"]/h1    ${nome_produto}    timeout=10s
@@ -77,36 +84,76 @@ Adicionar Produto ao Carrinho
 
 Verificar Produto no Carrinho
     [Documentation]    Acessa o carrinho e verifica se o produto está listado.
-    Sleep    10s
     [Arguments]    ${nome_produto}
     Click Element    ${SHOPPING_CART_LINK}
     Wait Until Page Contains    SHOPPING CART    timeout=10s
-    
-    # --- LÓGICA DE VERIFICAÇÃO CORRIGIDA E MAIS ROBUSTA ---
     ${product_locator}=    Set Variable    xpath=//*[self::h3 or self::label][normalize-space()='${nome_produto}']
     Wait Until Page Contains Element    ${product_locator}    timeout=10s
     Log To Console    --- Produto "${nome_produto}" verificado no carrinho com sucesso ---
 
-# --- Keywords Utilitárias (Sua Lógica Superior e Comprovada) ---
-Wait loader
-    [Documentation]    Espera o loader específico do login ficar desabilitado e invisível.
-    Wait Until Element Is Enabled    xpath=//login-modal//div[@class="loader" and @style="display: none; opacity: 0;"]    timeout=15s
+
+# --- KEYWORDS DE PAGAMENTO COM SUAS SUGESTÕES APLICADAS ---
+Tentar Prosseguir Para Pagamento
+    [Documentation]    Tenta executar a navegação para o pagamento com retentativas.
+    Wait Until Keyword Succeeds    3x    5s    Prosseguir Para Tela de Pagamento
+
+Prosseguir Para Tela de Pagamento
+    [Documentation]    Navega do carrinho até a tela de pagamento de forma robusta.
+    Click If Element Is Visible    ${CHECKOUT_BUTTON}
+    Wait Until Page Contains Element    id:orderPayment    timeout=10s
+    Click If Element Is Visible    ${NEXT_BUTTON}
+    Wait Until Page Contains         SafePay username    timeout=30s
+    Scroll Element Into View         ${SAFE_PAY_OPTION}
     Sleep    0.5s
+    Wait Until Element Is Visible    ${SAFE_PAY_OPTION}    timeout=10s
+
+Preencher e Validar Credenciais SafePay
+    [Documentation]    Preenche os dados do SafePay e valida o preenchimento.
+    [Arguments]    ${username}    ${password}
+    Click If Element Is Visible         ${SAFE_PAY_OPTION}
+    Click Element                       ${SAFE_PAY_USERNAME}
+    Input Text                          ${SAFE_PAY_USERNAME}       ${username}
+    Textfield Value Should Be           ${SAFE_PAY_USERNAME}       ${username}
+    Click Element                       ${SAFE_PAY_PASSWORD}
+    Input Text                          ${SAFE_PAY_PASSWORD}       ${password}
+    Textfield Value Should Be           ${SAFE_PAY_PASSWORD}       ${password}
+
+Validar Compra Realizada com Sucesso
+    [Documentation]    Verifica a mensagem de sucesso após o pagamento.
+    # CORREÇÃO: Espera pela mensagem exata que aparece na tela de sucesso.
+    ${success_locator}=    Set Variable    xpath=//h2/span[contains(., 'Thank you for buying with Advantage')]
+    Wait Until Element Is Visible    ${success_locator}    timeout=20s
+    Log To Console    --- Compra finalizada e validada com sucesso! ---
+
+# --- Keywords Utilitárias ---
+Wait Loader
+    [Documentation]    Aguarda o spinner de carregamento GENÉRICO desaparecer.
+    ${status}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOADER_SPINNER}    timeout=3s
+    IF    ${status}
+        Wait Until Element Is Not Visible    ${LOADER_SPINNER}    timeout=20s
+    END
+    Sleep    0.2s
 
 Click If Element Is Visible
-    [Documentation]    Aguarda um elemento ser clicável e então clica, esperando loaders.
+    [Documentation]    Aguarda um elemento ser clicável e então clica de forma padrão.
     [Arguments]    ${locator}
     Wait Until Element Is Visible    ${locator}    timeout=15s
     Wait Until Element Is Enabled    ${locator}    timeout=15s
-    Run Keyword And Ignore Error    Set Focus To Element    ${locator}
-    Wait loader
     Click Element    ${locator}
+    Wait Loader
 
 Input Text If Element Is Visible
-    [Documentation]    Aguarda um campo ser visível e então digita, esperando loaders.
+    [Documentation]    Aguarda um campo ser visível e então digita.
     [Arguments]    ${locator}    ${text}
-    Wait Until Element Is Visible    ${locator}    timeout=1s
+    Wait Until Element Is Visible    ${locator}    timeout=15s
     Wait Until Element Is Enabled    ${locator}    timeout=15s
-    Run Keyword And Ignore Error    Set Focus To Element    ${locator}
-    Wait loader
     Input Text    ${locator}    ${text}
+    Wait Loader
+
+# --- Keyword Especial para o clique problemático ---
+Click User Icon via Javascript
+    [Documentation]    Usa JavaScript para clicar no ícone de usuário, evitando interceptação.
+    Wait Until Element Is Visible    ${USER_ICON}    timeout=15s
+    ${element}=    Get Webelement    ${USER_ICON}
+    Execute Javascript    arguments[0].click();    ARGUMENTS    ${element}
+    Wait Loader
