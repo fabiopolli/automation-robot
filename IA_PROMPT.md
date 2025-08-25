@@ -17,9 +17,13 @@ O objetivo deste projeto é desenvolver uma suíte de testes automatizados para 
 /
 ├── libs/
 ├── resources/
-│   ├── api_keywords.robot  (Keywords para interagir com a API REST)
-│   ├── db_keywords.robot   (Keywords para conectar e manipular o BD)
-│   └── web_keywords.robot  (Keywords de UI, Page Objects, etc.)
+│   ├── api_keywords.robot
+│   ├── db_keywords.robot
+│   ├── common_keywords.robot  (Keywords genéricas de UI e setup do browser)
+│   └── pages/                 (Pasta para os Page Objects)
+│       ├── home_page.robot
+│       ├── product_page.robot
+│       └── checkout_page.robot
 ├── results/
 ├── testes/
 │   └── checkout.robot      (Cenários de teste em Gherkin)
@@ -29,9 +33,9 @@ O objetivo deste projeto é desenvolver uma suíte de testes automatizados para 
 
 ## 4. Regras e Convenções
 1.  **Padrão BDD:** Os casos de teste no diretório `/testes` devem ser escritos em Gherkin (Dado, Quando, Então).
-2.  **Page Objects:** A interação com elementos web (seletores, cliques, inputs) deve ser abstraída em keywords dentro de `web_keywords.robot`.
-3.  **Massa de Dados via API:** Antes de cada teste de UI que necessite de um usuário, uma keyword deve chamar a API `/register` para criar um usuário novo e isolado.
-4.  **Log em Banco de Dados:** Ao final de cada execução de teste, uma keyword de Teardown deve registrar o resultado (nome do teste, status, mensagem) em uma tabela no banco de dados MySQL.
+2.  **Page Objects:** A interação com elementos web (seletores e keywords) é organizada por página, dentro da pasta `/resources/pages`. Keywords genéricas ficam em `common_keywords.robot`.
+3.  **Massa de Dados via API:** Antes de cada teste, uma keyword de `Test Setup` chama a API `/register` para criar um usuário novo e isolado.
+4.  **Log em Banco de Dados:** Ao final de cada execução, uma keyword de `Test Teardown` registra o resultado no banco de dados MySQL.
 5.  **Evidências:** Screenshots devem ser capturadas em pontos críticos do fluxo.
 
 ## 5. Conexão com Banco de Dados (XAMPP)
@@ -42,20 +46,23 @@ O objetivo deste projeto é desenvolver uma suíte de testes automatizados para 
 * **Database:** `automation_results` (Nome que estamos utilizando)
 
 ## 6. Status Atual do Projeto (25/08/2025)
-A base do projeto e o fluxo de compra principal ("happy path") estão implementados e estáveis.
+O projeto foi refatorado para o padrão Page Object Model e todos os testes existentes estão passando. A base está estável e organizada.
 * **Keywords Implementadas:**
     * `db_keywords.robot`: Conexão e registro de resultados no MySQL.
     * `api_keywords.robot`: Criação de novo usuário via API.
-    * `web_keywords.robot`: Keywords para o fluxo completo, incluindo login, busca, adição ao carrinho e **finalização de pagamento com SafePay**.
+    * `common_keywords.robot`: Keywords genéricas de UI (esperas, cliques, inputs) e setup do browser.
+    * `pages/home_page.robot`: Keywords e seletores para Login e Busca.
+    * `pages/product_page.robot`: Keywords e seletores para a página de detalhes do produto.
+    * `pages/checkout_page.robot`: Keywords e seletores para o fluxo de carrinho e pagamento.
 * **Testes Automatizados (Passando):**
     * `[TC-00]`: Validação da conexão com o banco de dados.
     * `[TC-01]`: Validação da criação de usuário via API.
     * `[TC-02]`: Teste E2E de login de usuário.
     * `[TC-03]`: Teste E2E de adição de produto ao carrinho.
-    * `[TC-04]`: Teste E2E de **compra completa com sucesso**.
+    * `[TC-04]`: Teste E2E de compra completa com sucesso.
+    * `[TC-05]`: Teste negativo de login com senha incorreta.
 
 ## 7. Próximos Passos
-Com o fluxo principal concluído, o próximo objetivo é aumentar a cobertura de testes e preparar o projeto para automação contínua.
-1.  **Adicionar Testes Negativos:** Implementar cenários de falha para aumentar a robustez da suíte (ex: login com senha errada, tentativa de pagamento com dados inválidos).
-2.  **Refatorar para Page Objects:** Se o projeto crescer, podemos dividir o `web_keywords.robot` em arquivos de Page Objects mais específicos (ex: `home_page.robot`, `payment_page.robot`) para melhorar a manutenção.
-3.  **CI/CD:** Configurar a execução dos testes em uma esteira de automação (ex: Jenkins, GitHub Actions).
+Com o fluxo principal e a refatoração concluídos, o próximo objetivo é aumentar a cobertura de testes negativos.
+1.  **Adicionar mais Testes Negativos:** Implementar o cenário de busca por um produto inexistente.
+2.  **CI/CD:** Configurar a execução dos testes em uma esteira de automação.
